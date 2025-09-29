@@ -1,19 +1,24 @@
 resource "google_bigquery_table" "bronze_tb_external_sample" {
-  project    = var.project_id
-  dataset_id = google_bigquery_dataset.bronze_dataset.dataset_id
-  deletion_protection=false
-  table_id   = "tb_external_sample"
+  project           = var.project_id
+  dataset_id        = google_bigquery_dataset.bronze_dataset.dataset_id
+  deletion_protection = false
+  table_id          = "tb_external_sample"
 
   external_data_configuration {
     autodetect      = false
     source_format   = "PARQUET"
+
+    # ADICIONE ESTA LINHA DE VOLTA
+    # É obrigatória para o provedor Terraform, mesmo com Hive Partitioning.
     source_uris     = ["gs://${google_storage_bucket.bronze_bucket.name}/tb_external_sample/*"]
+
     hive_partitioning_options {
       mode              = "AUTO"
       source_uri_prefix = "gs://${google_storage_bucket.bronze_bucket.name}/tb_external_sample/"
     }
   }
 
+  # Esta parte continua garantindo que o BigQuery não faça nenhum scan
   schema = <<EOF
 [
   {
