@@ -8,30 +8,28 @@ resource "google_bigquery_table" "bronze_tb_external_sample" {
     autodetect      = false
     source_format   = "PARQUET"
 
-    # ADICIONE ESTA LINHA DE VOLTA
-    # É obrigatória para o provedor Terraform, mesmo com Hive Partitioning.
-    source_uris     = ["gs://${google_storage_bucket.bronze_bucket.name}/tb_external_sample/*"]
+    # AQUI ESTÁ A MUDANÇA FINAL
+    # Aponte para o diretório base, SEM o curinga "/*"
+    source_uris     = ["gs://${google_storage_bucket.bronze_bucket.name}/tb_external_sample/"]
 
     hive_partitioning_options {
       mode              = "AUTO"
+      # Este campo informa ao BQ para buscar partições dentro do prefixo acima
       source_uri_prefix = "gs://${google_storage_bucket.bronze_bucket.name}/tb_external_sample/"
     }
   }
 
-  # Esta parte continua garantindo que o BigQuery não faça nenhum scan
   schema = <<EOF
 [
   {
     "name": "id",
     "type": "STRING",
-    "mode": "NULLABLE",
-    "description": "The ID"
+    "mode": "NULLABLE"
   },
   {
     "name": "data",
     "type": "STRING",
-    "mode": "NULLABLE",
-    "description": "The data"
+    "mode": "NULLABLE"
   }
 ]
 EOF
