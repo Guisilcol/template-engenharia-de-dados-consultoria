@@ -6,33 +6,28 @@ variable "project_id" {
 variable "region" {
   description = "Região do GCP para deployment"
   type        = string
-  default     = "us-central1"
-}
-
-variable "zone" {
-  description = "Zona do GCP para deployment"
-  type        = string
-  default     = "us-central1-a"
-
 }
 
 variable "bronze_dataset_name" {
   description = "O nome do dataset da camada bronze"
   type        = string
+  default     = "bronze"
 }
 
 variable "silver_dataset_name" {
   description = "O nome do dataset da camada silver"
   type        = string
+  default     = "silver"
 }
 
 variable "gold_dataset_name" {
   description = "O nome do dataset da camada gold"
   type        = string
+  default     = "gold"
 }
 
 variable "reception_bucket_name" {
-  description = "O nome do bucket de recepção"
+  description = "O nome do bucket da camada de recepção"
   type        = string
 }
 
@@ -50,4 +45,3 @@ variable "gold_bucket_name" {
   description = "O nome do bucket da camada gold"
   type        = string
 }
-

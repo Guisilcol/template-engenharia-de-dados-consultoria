@@ -1,5 +1,12 @@
 #!/bin/bash
 
+# Script para fazer deploy nos ambientes.
+# Autor: Guilherme dos Santos Magalhães 
+# Data: 2024-06-29
+
+# Versão 1.0 
+#	- Criação inicial do script
+
 # Encerra o script se qualquer comando falhar
 set -e
 
