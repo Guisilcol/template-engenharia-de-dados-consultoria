@@ -1,3 +1,5 @@
+
+/*
 resource "google_bigquery_table" "bronze_tb_external_sample" {
   project           = var.project_id
   dataset_id        = google_bigquery_dataset.bronze_dataset.dataset_id
@@ -32,3 +34,4 @@ resource "google_bigquery_table" "bronze_tb_external_sample" {
 ]
 EOF
 }
+*/
