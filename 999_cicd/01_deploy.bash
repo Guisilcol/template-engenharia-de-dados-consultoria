@@ -79,4 +79,56 @@ terraform init -backend-config="./inventories/backend/${ENVIRONMENT}.conf"
 echo ">>> Executando terraform apply..."
 terraform apply -var-file="./inventories/tfvars/${ENVIRONMENT}.tfvars" -auto-approve
 
-echo ">>> Deploy concluído com sucesso!"
+echo ">>> Preparando build da imagem Docker para ser usada no Cloud Run..."
+
+# 6. Extrair informações do ambiente para o build da imagem
+echo ">>> Extraindo PROJECT_ID e REGION do arquivo .tfvars..."
+PROJECT_ID=$(grep -oP 'project_id\s*=\s*"\K[^"]+' "./inventories/tfvars/${ENVIRONMENT}.tfvars")
+REGION=$(grep -oP 'region\s*=\s*"\K[^"]+' "./inventories/tfvars/${ENVIRONMENT}.tfvars")
+
+if [ -z "${PROJECT_ID}" ] || [ -z "${REGION}" ]; then
+    echo "Erro: Não foi possível extrair PROJECT_ID e/ou REGION do arquivo ${TFVARS_FILE}."
+    exit 1
+fi
+
+echo "PROJECT_ID: ${PROJECT_ID}"
+echo "REGION: ${REGION}"
+
+# 7. Build e Push da imagem Docker
+REPO_NAME="docker-repo" # Nome do repositório no Artifact Registry (deve existir no projeto)
+IMAGE_NAME="sample-job" # Nome da imagem
+IMAGE_TAG="latest" # Tag da imagem
+IMAGE_URI="${REGION}-docker.pkg.dev/${PROJECT_ID}/${REPO_NAME}/${IMAGE_NAME}:${IMAGE_TAG}"
+DOCKERFILE_CONTEXT="../001_jobs"
+
+echo ">>> Verificando dependências do Docker e autenticação do gcloud..."
+if ! command -v docker &>/dev/null; then
+	echo "Erro: docker não está instalado. Por favor, instale o Docker e tente novamente."
+	exit 1
+fi
+
+# Verifica se o usuário atual consegue falar com o daemon sem sudo
+if ! docker info &>/dev/null; then
+	echo "Erro: não foi possível acessar o daemon do Docker."
+	echo "Dica: adicione seu usuário ao grupo 'docker' e reinicie a sessão: sudo usermod -aG docker $USER"
+	exit 1
+fi
+
+# Verifica autenticação do gcloud
+ACTIVE_ACCOUNT=$(gcloud auth list --filter=status:ACTIVE --format="value(account)" || true)
+if [ -z "${ACTIVE_ACCOUNT}" ]; then
+	echo "Erro: gcloud não está autenticado. Execute 'gcloud auth login' ou 'gcloud auth activate-service-account' e tente novamente."
+	exit 1
+fi
+
+echo ">>> Configurando autenticação Docker para o Artifact Registry (usando conta ${ACTIVE_ACCOUNT})..."
+gcloud config set project "${PROJECT_ID}" 1>/dev/null
+gcloud auth configure-docker "${REGION}-docker.pkg.dev" --quiet
+
+echo ">>> Buildando a imagem Docker..."
+docker build -t "${IMAGE_URI}" "${DOCKERFILE_CONTEXT}"
+
+echo ">>> Enviando a imagem para o Artifact Registry..."
+docker push "${IMAGE_URI}"
+
+echo ">>> Imagem enviada com sucesso para ${IMAGE_URI}"
