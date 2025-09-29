@@ -1,32 +1,32 @@
 #!/bin/bash
 
 # Script para fazer deploy nos ambientes.
-# Autor: Guilherme dos Santos Magalhães 
+# Autor: Guilherme dos Santos Magalhães
 # Data: 2024-06-29
 
-# Versão 1.0 
+# Versão 1.0
 #	- Criação inicial do script
 
 # Encerra o script se qualquer comando falhar
 set -e
 
 # Verificar se git e terraform estão instalados
-if ! command -v git &> /dev/null; then
-    echo "Erro: git não está instalado. Por favor, instale o git e tente novamente."
-    exit 1
+if ! command -v git &>/dev/null; then
+	echo "Erro: git não está instalado. Por favor, instale o git e tente novamente."
+	exit 1
 fi
 echo ">>> Git... OK"
 
-if ! command -v terraform &> /dev/null; then
-    echo "Erro: terraform não está instalado. Por favor, instale o terraform e tente novamente."
-    exit 1
+if ! command -v terraform &>/dev/null; then
+	echo "Erro: terraform não está instalado. Por favor, instale o terraform e tente novamente."
+	exit 1
 fi
 echo ">>> Terraform... OK"
 
 # 1. Receber o nome da branch e do ambiente
 if [ "$#" -ne 2 ]; then
-    echo "Uso: $0 <nome-da-branch> <ambiente>"
-    exit 1
+	echo "Uso: $0 <nome-da-branch> <ambiente>"
+	exit 1
 fi
 
 BRANCH_NAME=$1
@@ -40,16 +40,16 @@ echo ">>> Iniciando deploy da branch '${BRANCH_NAME}' para o ambiente '${ENVIRON
 # 2. Verificar se o nome do ambiente existe
 echo ">>> Verificando arquivo de configuração do ambiente..."
 if [ ! -f "${BACKEND_CONFIG_FILE}" ]; then
-    echo "Erro: O ambiente '${ENVIRONMENT}' é inválido. Arquivo '${BACKEND_CONFIG_FILE}' não encontrado."
-    exit 1
+	echo "Erro: O ambiente '${ENVIRONMENT}' é inválido. Arquivo '${BACKEND_CONFIG_FILE}' não encontrado."
+	exit 1
 fi
 echo "Ambiente '${ENVIRONMENT}' verificado com sucesso."
 
 # 3. Verificar se o nome da branch informada existe
 echo ">>> Verificando se a branch '${BRANCH_NAME}' existe no repositório remoto..."
 if ! git ls-remote --exit-code --heads origin "${BRANCH_NAME}"; then
-    echo "Erro: A branch '${BRANCH_NAME}' não foi encontrada no repositório remoto 'origin'."
-    exit 1
+	echo "Erro: A branch '${BRANCH_NAME}' não foi encontrada no repositório remoto 'origin'."
+	exit 1
 fi
 echo "Branch '${BRANCH_NAME}' encontrada."
 
@@ -66,8 +66,8 @@ echo "Download concluído."
 DEPLOY_DIR="${TMP_DIR}/${INFRA_DIR}"
 
 if [ ! -d "${DEPLOY_DIR}" ]; then
-    echo "Erro: O diretório de infraestrutura '${INFRA_DIR}' não foi encontrado no conteúdo da branch."
-    exit 1
+	echo "Erro: O diretório de infraestrutura '${INFRA_DIR}' não foi encontrado no conteúdo da branch."
+	exit 1
 fi
 
 cd "${DEPLOY_DIR}"
