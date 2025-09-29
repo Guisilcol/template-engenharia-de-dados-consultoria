@@ -12,11 +12,11 @@ resource "google_bigquery_table" "bronze_tb_external_sample" {
 
     hive_partitioning_options {
       mode              = "STRINGS"
-      source_uri_prefix = "gs://${google_storage_bucket.bronze_bucket.name}/tb_external_sample"
+      source_uri_prefix = "gs://${google_storage_bucket.bronze_bucket.name}/tb_external_sample/*"
       require_partition_filter = false
     }
   }
-
+  
   schema = <<EOF
 [
   {
