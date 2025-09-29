@@ -3,6 +3,19 @@
 # Encerra o script se qualquer comando falhar
 set -e
 
+# Verificar se git e terraform estão instalados
+if ! command -v git &> /dev/null; then
+    echo "Erro: git não está instalado. Por favor, instale o git e tente novamente."
+    exit 1
+fi
+echo ">>> Git... OK"
+
+if ! command -v terraform &> /dev/null; then
+    echo "Erro: terraform não está instalado. Por favor, instale o terraform e tente novamente."
+    exit 1
+fi
+echo ">>> Terraform... OK"
+
 # 1. Receber o nome da branch e do ambiente
 if [ "$#" -ne 2 ]; then
     echo "Uso: $0 <nome-da-branch> <ambiente>"
