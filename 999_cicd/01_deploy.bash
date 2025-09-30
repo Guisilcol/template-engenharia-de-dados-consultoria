@@ -87,7 +87,7 @@ echo ">>> Executando terraform init..."
 terraform init -backend-config="./inventories/backend/${ENVIRONMENT}.conf"
 
 echo ">>> Executando terraform apply..."
-terraform apply -auto-approve
+terraform apply -auto-approve -var-file="./inventories/tfvars/${ENVIRONMENT}.tfvars"
 
 echo ">>> Preparando build da imagem Docker para ser usada no Cloud Run..."
 
