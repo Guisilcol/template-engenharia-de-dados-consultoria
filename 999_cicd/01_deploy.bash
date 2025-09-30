@@ -33,7 +33,7 @@ BRANCH_NAME=$1
 ENVIRONMENT=$2
 INFRA_DIR="000_infrastructure"
 BACKEND_CONFIG_FILE="${INFRA_DIR}/inventories/backend/${ENVIRONMENT}.conf"
-TFVARS_FILE="${INFRA_DIR}/inventories/tfvars/${ENVIRONMENT}.tfvars"
+ENV_FILE="${INFRA_DIR}/inventories/env/${ENVIRONMENT}.env"
 
 echo ">>> Iniciando deploy da branch '${BRANCH_NAME}' para o ambiente '${ENVIRONMENT}'"
 
@@ -43,7 +43,17 @@ if [ ! -f "${BACKEND_CONFIG_FILE}" ]; then
 	echo "Erro: O ambiente '${ENVIRONMENT}' é inválido. Arquivo '${BACKEND_CONFIG_FILE}' não encontrado."
 	exit 1
 fi
+if [ ! -f "${ENV_FILE}" ]; then
+	echo "Erro: O arquivo de ambiente '${ENV_FILE}' não foi encontrado."
+	exit 1
+fi
 echo "Ambiente '${ENVIRONMENT}' verificado com sucesso."
+
+# Carrega as variáveis de ambiente do arquivo .env
+echo ">>> Carregando variáveis de ambiente de ${ENV_FILE}"
+set -o allexport
+source "${ENV_FILE}"
+set +o allexport
 
 # 3. Verificar se o nome da branch informada existe
 echo ">>> Verificando se a branch '${BRANCH_NAME}' existe no repositório remoto..."
@@ -77,26 +87,28 @@ echo ">>> Executando terraform init..."
 terraform init -backend-config="./inventories/backend/${ENVIRONMENT}.conf"
 
 echo ">>> Executando terraform apply..."
-terraform apply -var-file="./inventories/tfvars/${ENVIRONMENT}.tfvars" -auto-approve
+terraform apply -auto-approve
 
 echo ">>> Preparando build da imagem Docker para ser usada no Cloud Run..."
 
 # 6. Extrair informações do ambiente para o build da imagem
-echo ">>> Extraindo PROJECT_ID e REGION do arquivo .tfvars..."
-PROJECT_ID=$(grep -oP 'project_id\s*=\s*"\K[^"]+' "./inventories/tfvars/${ENVIRONMENT}.tfvars")
-REGION=$(grep -oP 'region\s*=\s*"\K[^"]+' "./inventories/tfvars/${ENVIRONMENT}.tfvars")
+echo ">>> Extraindo PROJECT_ID, REGION, REPO_NAME e IMAGE_NAME das variáveis de ambiente..."
+PROJECT_ID=${TF_VAR_project_id}
+REGION=${TF_VAR_region}
+REPO_NAME=${TF_VAR_artifact_registry_name}
+IMAGE_NAME=${TF_VAR_artifact_image_name_to_cloud_run}
 
-if [ -z "${PROJECT_ID}" ] || [ -z "${REGION}" ]; then
-    echo "Erro: Não foi possível extrair PROJECT_ID e/ou REGION do arquivo ${TFVARS_FILE}."
+if [ -z "${PROJECT_ID}" ] || [ -z "${REGION}" ] || [ -z "${REPO_NAME}" ] || [ -z "${IMAGE_NAME}" ]; then
+    echo "Erro: Não foi possível encontrar TF_VAR_project_id, TF_VAR_region, TF_VAR_artifact_registry_name e/ou TF_VAR_artifact_image_name_to_cloud_run nas variáveis de ambiente."
     exit 1
 fi
 
 echo "PROJECT_ID: ${PROJECT_ID}"
 echo "REGION: ${REGION}"
+echo "REPO_NAME: ${REPO_NAME}"
+echo "IMAGE_NAME: ${IMAGE_NAME}"
 
 # 7. Build e Push da imagem Docker
-REPO_NAME="docker-repo" # Nome do repositório no Artifact Registry (deve existir no projeto)
-IMAGE_NAME="sample-job" # Nome da imagem
 IMAGE_TAG="latest" # Tag da imagem
 IMAGE_URI="${REGION}-docker.pkg.dev/${PROJECT_ID}/${REPO_NAME}/${IMAGE_NAME}:${IMAGE_TAG}"
 DOCKERFILE_CONTEXT="../001_jobs"

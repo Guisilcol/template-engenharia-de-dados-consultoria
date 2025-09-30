@@ -9,11 +9,14 @@ variable "region" {
   default     = "us-central1"
 }
 
-variable "zone" {
-  description = "Zona do GCP para deployment"
+variable "artifact_registry_name" {
+  description = "O nome do Artifact Registry"
   type        = string
-  default     = "us-central1-a"
+}
 
+variable "artifact_image_name_to_cloud_run" {
+  description = "O nome da imagem do Artifact Registry para Cloud Run Jobs"
+  type        = string
 }
 
 variable "bronze_dataset_name" {

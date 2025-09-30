@@ -1,6 +1,3 @@
-project_id            = "template-dev-sqs2"
-region                = "southamerica-east1"
-zone                  = "southamerica-east1-a"
 bronze_dataset_name   = "bronze_layer"
 silver_dataset_name   = "silver_layer"
 gold_dataset_name     = "gold_layer"
