@@ -10,7 +10,6 @@
 # Encerra o script se qualquer comando falhar
 set -e
 
-# Verificar se git e terraform estão instalados
 if ! command -v git &>/dev/null; then
 	echo "Erro: git não está instalado. Por favor, instale o git e tente novamente."
 	exit 1
@@ -23,6 +22,19 @@ if ! command -v terraform &>/dev/null; then
 fi
 echo ">>> Terraform... OK"
 
+# Verificar se gcloud e docker estão instalados
+if ! command -v gcloud &>/dev/null; then
+	echo "Erro: gcloud não está instalado. Por favor, instale o gcloud e tente novamente."
+	exit 1
+fi
+echo ">>> gcloud... OK"
+
+if ! command -v docker &>/dev/null; then
+	echo "Erro: docker não está instalado. Por favor, instale o docker e tente novamente."
+	exit 1
+fi
+echo ">>> Docker... OK"
+
 # 1. Receber o nome da branch e do ambiente
 if [ "$#" -ne 2 ]; then
 	echo "Uso: $0 <nome-da-branch> <ambiente>"
@@ -34,6 +46,8 @@ ENVIRONMENT=$2
 INFRA_DIR="000_infrastructure"
 BACKEND_CONFIG_FILE="${INFRA_DIR}/inventories/backend/${ENVIRONMENT}.conf"
 ENV_FILE="${INFRA_DIR}/inventories/env/${ENVIRONMENT}.env"
+TFVARS_FILE="${INFRA_DIR}/inventories/tfvars/${ENVIRONMENT}.tfvars"
+TFVARS_FILE_RELATIVE="./inventories/tfvars/${ENVIRONMENT}.tfvars"
 
 echo ">>> Iniciando deploy da branch '${BRANCH_NAME}' para o ambiente '${ENVIRONMENT}'"
 
@@ -45,6 +59,10 @@ if [ ! -f "${BACKEND_CONFIG_FILE}" ]; then
 fi
 if [ ! -f "${ENV_FILE}" ]; then
 	echo "Erro: O arquivo de ambiente '${ENV_FILE}' não foi encontrado."
+	exit 1
+fi
+if [ ! -f "${TFVARS_FILE}" ]; then
+	echo "Erro: O arquivo de tfvars '${TFVARS_FILE}' não foi encontrado."
 	exit 1
 fi
 echo "Ambiente '${ENVIRONMENT}' verificado com sucesso."
@@ -87,7 +105,7 @@ echo ">>> Executando terraform init..."
 terraform init -backend-config="./inventories/backend/${ENVIRONMENT}.conf"
 
 echo ">>> Executando terraform apply..."
-terraform apply -auto-approve -var-file="./inventories/tfvars/${ENVIRONMENT}.tfvars"
+terraform apply -auto-approve -var-file="${TFVARS_FILE_RELATIVE}"
 
 echo ">>> Preparando build da imagem Docker para ser usada no Cloud Run..."
 
@@ -99,8 +117,8 @@ REPO_NAME=${TF_VAR_artifact_registry_name}
 IMAGE_NAME=${TF_VAR_artifact_image_name_to_cloud_run}
 
 if [ -z "${PROJECT_ID}" ] || [ -z "${REGION}" ] || [ -z "${REPO_NAME}" ] || [ -z "${IMAGE_NAME}" ]; then
-    echo "Erro: Não foi possível encontrar TF_VAR_project_id, TF_VAR_region, TF_VAR_artifact_registry_name e/ou TF_VAR_artifact_image_name_to_cloud_run nas variáveis de ambiente."
-    exit 1
+	echo "Erro: Não foi possível encontrar TF_VAR_project_id, TF_VAR_region, TF_VAR_artifact_registry_name e/ou TF_VAR_artifact_image_name_to_cloud_run nas variáveis de ambiente."
+	exit 1
 fi
 
 echo "PROJECT_ID: ${PROJECT_ID}"
