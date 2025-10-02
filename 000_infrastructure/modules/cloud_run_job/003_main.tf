@@ -2,6 +2,7 @@ resource "google_cloud_run_v2_job" "default" {
   name     = var.name
   location = var.location
   project  = var.project_id
+  deletion_protection = false
 
   template {
     template {
