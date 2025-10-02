@@ -1,7 +1,7 @@
 module "cloud_run_job_sample" {
   source = "./modules/cloud_run_job"
 
-  name                  = "teste-job-tf"
+  name                  = "teste-job-tf-v2"
   location              = var.region
   project_id            = var.project_id
   service_account_email = google_service_account.cloud_run_job_service_account.email
