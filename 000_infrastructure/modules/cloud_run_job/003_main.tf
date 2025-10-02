@@ -9,6 +9,13 @@ resource "google_cloud_run_v2_job" "default" {
       containers {
         image = var.artifact_image_path
         args  = var.args
+        dynamic "env" {
+          for_each = var.env_vars
+          content {
+            name  = env.key
+            value = env.value
+          }
+        }
         resources {
           limits = {
             cpu    = var.cpu_limit

@@ -40,3 +40,9 @@ variable "memory_limit" {
   type        = string
   default     = "512Mi"
 }
+
+variable "env_vars" {
+  description = "A map of environment variables to set in the container."
+  type        = map(string)
+  default     = {}
+}

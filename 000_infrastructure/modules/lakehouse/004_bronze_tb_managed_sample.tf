@@ -4,20 +4,18 @@ resource "google_bigquery_table" "bronze_tb_managed_sample" {
   deletion_protection = false
   table_id            = "tb_managed_sample"
 
-  schema = <<EOF
-[
-  {
-    "name": "id",
-    "type": "STRING",
-    "mode": "NULLABLE",
-    "description": "The ID"
-  },
-  {
-    "name": "data",
-    "type": "STRING",
-    "mode": "NULLABLE",
-    "description": "The data"
-  }
-]
-EOF
+  schema = jsonencode([
+    {
+      name        = "id"
+      type        = "STRING"
+      mode        = "NULLABLE"
+      description = "The ID"
+    },
+    {
+      name        = "data"
+      type        = "STRING"
+      mode        = "NULLABLE"
+      description = "The data"
+    }
+  ])
 }
