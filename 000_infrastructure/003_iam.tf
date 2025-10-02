@@ -1,6 +1,6 @@
 # Service Account para o Cloud Run Job
 resource "google_service_account" "cloud_run_job_service_account" {
-  account_id   = "cloud-run-job-service-account"
+  account_id = "cloud-run-job-service-account"
 }
 
 # IAM bindings para a Service Account
