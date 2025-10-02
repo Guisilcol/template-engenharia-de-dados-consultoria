@@ -46,3 +46,9 @@ variable "env_vars" {
   type        = map(string)
   default     = {}
 }
+
+variable "max_retries" {
+  description = "Number of retries for the job."
+  type        = number
+  default     = 0
+}

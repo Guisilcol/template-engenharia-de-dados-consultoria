@@ -9,4 +9,5 @@ module "cloud_run_job_sample" {
   args                  = ["python", "000_sample/main.py"]
   cpu_limit             = "1"
   memory_limit          = "512Mi"
+  max_retries           = 0
 }
