@@ -91,7 +91,6 @@ fi
 echo "Arquivos do ambiente '${ENVIRONMENT}' verificados com sucesso."
 
 # ------------- Carrega variáveis de ambiente ------------- #
-
 # Carrega as variáveis de ambiente do arquivo .env
 echo ">>> Carregando variáveis de ambiente de ${ENV_FILE}"
 set -o allexport
@@ -132,6 +131,12 @@ if [ -z "${ACTIVE_ACCOUNT}" ]; then
 	exit 1
 fi
 
+# A pasta de jobs existe?
+if [ ! -d "${JOB_DIR}" ]; then
+	echo "Erro: O diretório de jobs '${JOB_DIR}' não foi encontrado no conteúdo da branch."
+	exit 1
+fi
+
 # Build e Push da imagem Docker
 IMAGE_TAG="latest" # Tag da imagem
 IMAGE_URI="${REGION}-docker.pkg.dev/${PROJECT_ID}/${REPO_NAME}/${IMAGE_NAME}:${IMAGE_TAG}"
@@ -152,7 +157,7 @@ docker push "${IMAGE_URI}"
 echo ">>> Imagem enviada com sucesso para ${IMAGE_URI}"
 
 # ------------- Deploy do Terraform ------------- #
-
+# A pasta de infraestrutura existe?
 if [ ! -d "${INFRA_DIR}" ]; then
 	echo "Erro: O diretório de infraestrutura '${INFRA_DIR}' não foi encontrado no conteúdo da branch."
 	exit 1
