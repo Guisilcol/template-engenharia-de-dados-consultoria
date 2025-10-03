@@ -1,7 +1,8 @@
 #!/bin/bash
+
 # Script para criar um projeto no Google Cloud, vincular uma conta de faturamento e criar um bucket GCS.
 # Autor: Guilherme dos Santos Magalhães 
-# Data: 2024-06-27
+# Data: 2025-09-27
 
 # Versão 1.0 
 #	- Criação inicial do script
