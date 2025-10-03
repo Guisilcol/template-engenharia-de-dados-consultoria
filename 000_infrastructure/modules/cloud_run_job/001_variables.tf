@@ -52,3 +52,13 @@ variable "max_retries" {
   type        = number
   default     = 0
 }
+
+variable "secrets" {
+  description = "Lista de secrets a serem montados como variáveis de ambiente"
+  type = list(object({
+    name       = string # Nome da variável de ambiente
+    secret_id  = string # ID do secret no Secret Manager (formato: projects/PROJECT_ID/secrets/SECRET_ID)
+    version    = optional(string, "latest") # Versão do secret (default: latest)
+  }))
+  default = []
+}
