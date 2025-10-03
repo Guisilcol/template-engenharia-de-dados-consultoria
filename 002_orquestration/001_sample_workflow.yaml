@@ -7,11 +7,10 @@ main:
       - region: ${region}
 
   - run_ingestion_job:
-      call: http.post
+      call: googleapis.run.v1.namespaces.jobs.run
       args:
-        url: $${"https://" + region + "-run.googleapis.com/apis/run.googleapis.com/v1/namespaces/" + project_id + "/jobs/teste-job-tf-v2:run"}
-        auth:
-          type: OAuth2
+        url: $${"namespaces/" + project_id + "/jobs/" + "teste-job-tf-v2"}
+        location: ${region}
       next: finish
 
   - finish:
