@@ -20,5 +20,5 @@ main:
         next: log_success
       next: log_failure
 
-  - end:
+  - finish:
       return: "Workflow completed"
