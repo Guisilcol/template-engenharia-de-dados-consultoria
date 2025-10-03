@@ -10,7 +10,9 @@ resource "google_project_iam_member" "cloud_run_job_permissions" {
     "roles/monitoring.metricWriter",
     "roles/bigquery.dataEditor",
     "roles/bigquery.jobUser",
-    "roles/storage.objectAdmin"
+    "roles/storage.objectAdmin",
+    "roles/run.invoker",
+    "roles/run.developer"
   ])
 
   project = var.project_id
