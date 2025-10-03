@@ -13,7 +13,9 @@ resource "google_project_iam_member" "cloud_run_job_permissions" {
     "roles/storage.objectAdmin",
     "roles/run.invoker",
     "roles/run.developer",
-    "roles/run.viewer"
+    "roles/run.viewer",
+    "roles/workflows.invoker",
+    "roles/run.invoker"
   ])
 
   project = var.project_id
