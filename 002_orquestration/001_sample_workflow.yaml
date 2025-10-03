@@ -1,0 +1,24 @@
+main:
+  params: [ args ]
+  steps:
+  - init:
+      assign:
+      - project_id: ${project_id}
+      - region: ${region}
+
+  - run_ingestion_job:
+      call: http.post
+      args:
+        url: $${"https://" + region + "-run.googleapis.com/apis/run.googleapis.com/v1/namespaces/" + project_id + "/jobs/teste-job-tf-v2:run"}
+        auth:
+          type: OAuth2
+      result: ingestion_result
+
+  - check_ingestion_status:
+      switch:
+      - condition: $${ingestion_result.body.status.succeededCount > 0}
+        next: log_success
+      next: log_failure
+
+  - end:
+      return: "Workflow completed"
