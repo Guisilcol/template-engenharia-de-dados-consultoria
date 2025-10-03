@@ -9,7 +9,7 @@ main:
   - run_ingestion_job:
       call: googleapis.run.v1.namespaces.jobs.run
       args:
-        name: $${"namespaces/" + project_id + "/jobs/" + "teste-job-tf-v2"}
+        name: $${"namespaces/" + project_id + "/jobs/" + "teste-job-tf-v3"}
         location: ${region}
       next: finish
 
