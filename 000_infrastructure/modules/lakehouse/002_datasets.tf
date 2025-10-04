@@ -21,3 +21,11 @@ resource "google_bigquery_dataset" "gold_dataset" {
   description   = "This is a dataset for gold data."
   location      = var.region
 }
+
+resource "google_bigquery_dataset" "system_dataset" {
+  project       = var.project_id
+  dataset_id    = var.system_dataset_name
+  friendly_name = var.system_dataset_name
+  description   = "This is a dataset for system data (logs, metadata, etc)."
+  location      = var.region
+}

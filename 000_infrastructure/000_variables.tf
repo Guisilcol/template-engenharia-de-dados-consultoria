@@ -34,6 +34,11 @@ variable "gold_dataset_name" {
   type        = string
 }
 
+variable "system_dataset_name" {
+  description = "O nome do dataset de sistema (logs, metadados, etc)"
+  type        = string
+}
+
 variable "reception_bucket_name" {
   description = "O nome do bucket de recepção"
   type        = string
@@ -53,4 +58,3 @@ variable "gold_bucket_name" {
   description = "O nome do bucket da camada gold"
   type        = string
 }
-

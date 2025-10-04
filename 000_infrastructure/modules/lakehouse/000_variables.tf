@@ -26,6 +26,12 @@ variable "gold_dataset_name" {
   default     = "gold"
 }
 
+variable "system_dataset_name" {
+  description = "O nome do dataset de sistema (logs, metadados, etc)"
+  type        = string
+  default     = "system"
+}
+
 variable "reception_bucket_name" {
   description = "O nome do bucket da camada de recepção"
   type        = string
