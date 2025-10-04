@@ -1,12 +1,12 @@
-resource "google_storage_bucket_object" "tb_external_sample_dummy_v2" {
-  name    = "tb_external_sample/partition=dummy/.keep"
+resource "google_storage_bucket_object" "tb_external_sample_dummy_v3" {
+  name    = "tb_external_sample/.keep"
   content = " "
   bucket  = google_storage_bucket.bronze_bucket.name
 
 }
 
 
-resource "google_bigquery_table" "bronze_tb_external_sample" {
+resource "google_bigquery_table" "bronze_tb_external_sample_v3" {
   depends_on = [ google_storage_bucket_object.tb_external_sample_dummy_v2 ]
   project           = var.project_id
   dataset_id        = google_bigquery_dataset.bronze_dataset.dataset_id
