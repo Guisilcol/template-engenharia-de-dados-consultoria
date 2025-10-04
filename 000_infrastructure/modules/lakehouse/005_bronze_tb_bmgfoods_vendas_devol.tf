@@ -113,16 +113,6 @@ resource "google_bigquery_table" "bronze_tb_bmgfoods_vendas_devol" {
     "name": "estabelecimento",
     "type": "STRING",
     "mode": "NULLABLE"
-  },
-  {
-    "name": "arquivo_origem",
-    "type": "STRING",
-    "mode": "NULLABLE"
-  },
-  {
-    "name": "data_criacao",
-    "type": "DATE",
-    "mode": "NULLABLE"
   }
 ]
 EOF
