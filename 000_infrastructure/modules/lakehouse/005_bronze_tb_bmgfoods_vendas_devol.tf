@@ -91,31 +91,23 @@ resource "google_bigquery_table" "bronze_tb_bmgfoods_vendas_devol" {
   },
   {
     "name": "quantidade",
-    "type": "NUMERIC",
-    "mode": "NULLABLE",
-    "precision": "18",
-    "scale": "3"
+    "type": "FLOAT64",
+    "mode": "NULLABLE"
   },
   {
     "name": "peso_liquido",
-    "type": "NUMERIC",
-    "mode": "NULLABLE",
-    "precision": "18",
-    "scale": "3"
+    "type": "FLOAT64",
+    "mode": "NULLABLE"
   },
   {
     "name": "valor_total",
-    "type": "NUMERIC",
-    "mode": "NULLABLE",
-    "precision": "18",
-    "scale": "3"
+    "type": "FLOAT64",
+    "mode": "NULLABLE"
   },
   {
     "name": "valor_unitario",
-    "type": "NUMERIC",
-    "mode": "NULLABLE",
-    "precision": "18",
-    "scale": "3"
+    "type": "FLOAT64",
+    "mode": "NULLABLE"
   },
   {
     "name": "estabelecimento",
