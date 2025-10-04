@@ -1,12 +1,13 @@
-resource "google_storage_bucket_object" "tb_external_sample_dummy" {
+resource "google_storage_bucket_object" "tb_external_sample_dummy_v2" {
   name    = "tb_external_sample/partition=dummy/.keep"
   content = " "
   bucket  = google_storage_bucket.bronze_bucket.name
+
 }
 
 
 resource "google_bigquery_table" "bronze_tb_external_sample" {
-  depends_on = [ google_storage_bucket_object.tb_external_sample_dummy ]
+  depends_on = [ google_storage_bucket_object.tb_external_sample_dummy_v2 ]
   project           = var.project_id
   dataset_id        = google_bigquery_dataset.bronze_dataset.dataset_id
   deletion_protection = false
@@ -17,11 +18,11 @@ resource "google_bigquery_table" "bronze_tb_external_sample" {
     autodetect      = false
     source_format   = "PARQUET"
 
-    source_uris     = ["gs://${google_storage_bucket.bronze_bucket.name}/tb_external_sample"]
+    source_uris     = ["gs://${google_storage_bucket.bronze_bucket.name}/tb_external_sample/*"]
 
     hive_partitioning_options {
       mode              = "STRINGS"
-      source_uri_prefix = "gs://${google_storage_bucket.bronze_bucket.name}/tb_external_sample/*"
+      source_uri_prefix = "gs://${google_storage_bucket.bronze_bucket.name}/tb_external_sample/"
       require_partition_filter = false
     }
   }
