@@ -9,12 +9,6 @@ resource "google_bigquery_table" "bronze_tb_bmgfoods_vendas_devol" {
     source_format = "PARQUET"
 
     source_uris = ["gs://${google_storage_bucket.bronze_bucket.name}/bmgfoods_vendas_devol/*"]
-
-    hive_partitioning_options {
-      mode                     = "STRINGS"
-      source_uri_prefix        = "gs://${google_storage_bucket.bronze_bucket.name}/bmgfoods_vendas_devol"
-      require_partition_filter = false
-    }
   }
 
   schema = <<EOF
