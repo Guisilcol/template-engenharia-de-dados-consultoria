@@ -1,10 +1,17 @@
+resource "google_storage_bucket_object" "tb_external_sample_dummy" {
+  name    = "tb_external_sample/partition=dummy/.keep"
+  content = ""
+  bucket  = google_storage_bucket.bronze_bucket.name
+}
 
-/*
+
 resource "google_bigquery_table" "bronze_tb_external_sample" {
+  depends_on = [ google_storage_bucket_object.tb_external_sample_dummy ]
   project           = var.project_id
   dataset_id        = google_bigquery_dataset.bronze_dataset.dataset_id
   deletion_protection = false
   table_id          = "tb_external_sample"
+
 
   external_data_configuration {
     autodetect      = false
@@ -30,8 +37,12 @@ resource "google_bigquery_table" "bronze_tb_external_sample" {
     "name": "data",
     "type": "STRING",
     "mode": "NULLABLE"
+  },
+  {
+    "name": "partition",
+    "type": "STRING",
+    "mode": "NULLABLE"
   }
 ]
 EOF
 }
-*/
