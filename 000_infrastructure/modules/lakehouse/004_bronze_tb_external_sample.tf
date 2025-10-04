@@ -1,5 +1,5 @@
 resource "google_storage_bucket_object" "tb_external_sample_dummy_v3" {
-  name    = "tb_external_sample/partition=dummy/.keep"
+  name    = "tb_external_sample/partition=dummy/dummy.parquet"
   content = " "
   bucket  = google_storage_bucket.bronze_bucket.name
 
