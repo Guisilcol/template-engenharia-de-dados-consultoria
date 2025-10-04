@@ -103,7 +103,7 @@ def update_parameter(
     update_query = f"""
         UPDATE `{dataset_id}.{table}`
         SET 
-            parameter = PARSE_JSON(@parameter),
+            parametro = PARSE_JSON(@parameter),
             datahora_alteracao = CURRENT_TIMESTAMP()
         WHERE codigo_parametro = @parameter_code
     """
