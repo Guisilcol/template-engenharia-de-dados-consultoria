@@ -1,6 +1,6 @@
 resource "google_storage_bucket_object" "tb_external_sample_dummy" {
   name    = "tb_external_sample/partition=dummy/.keep"
-  content = ""
+  content = " "
   bucket  = google_storage_bucket.bronze_bucket.name
 }
 
