@@ -16,7 +16,7 @@ resource "null_resource" "create_dummy_file" {
 
 
 resource "google_bigquery_table" "bronze_tb_external_sample_v4" {
-  depends_on          = [google_storage_bucket_object.tb_external_sample_dummy_v3]
+  depends_on          = [null_resource.create_dummy_file]
   project             = var.project_id
   dataset_id          = google_bigquery_dataset.bronze_dataset.dataset_id
   deletion_protection = false
