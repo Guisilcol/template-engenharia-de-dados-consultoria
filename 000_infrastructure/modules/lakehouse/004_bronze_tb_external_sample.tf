@@ -1,13 +1,19 @@
-resource "google_storage_bucket_object" "tb_external_sample_dummy_v3" {
-  name    = "tb_external_sample/partition=dummy/.dummy"
-  content = " "
-  bucket  = google_storage_bucket.bronze_bucket.name
-
-  lifecycle {
-    # Garante que o dummy seja criado antes de destruir o antigo
-    create_before_destroy = true
+# Null resource que sempre executa e cria um arquivo dummy no GCS
+resource "null_resource" "create_dummy_file" {
+  # Trigger que força a execução em todo terraform apply
+  triggers = {
+    always_run = timestamp()
   }
+
+  provisioner "local-exec" {
+    command = <<EOT
+      echo " " | gcloud storage cp - gs://${google_storage_bucket.bronze_bucket.name}/tb_external_sample/partition=dummy/.dummy_null_resource
+    EOT
+  }
+
+  depends_on = [google_storage_bucket.bronze_bucket]
 }
+
 
 resource "google_bigquery_table" "bronze_tb_external_sample_v4" {
   depends_on          = [google_storage_bucket_object.tb_external_sample_dummy_v3]
@@ -49,41 +55,25 @@ resource "google_bigquery_table" "bronze_tb_external_sample_v4" {
   }
 ]
 EOF
+}
 
-  lifecycle {
-    # Garante que o dummy exista antes da tabela ser recriada
-    create_before_destroy = true
+
+# Null resource que apaga o arquivo criado pelo null resource anterior
+# Depende do null resource anterior e da tabela bronze_tb_external_sample_v4
+resource "null_resource" "delete_dummy_file" {
+  # Trigger que força a execução em todo terraform apply
+  triggers = {
+    always_run = timestamp()
   }
 
-  # Cria o dummy antes da tabela ser criada/recriada
   provisioner "local-exec" {
-    when        = create
-    interpreter = ["/bin/bash", "-c"]
-    environment = {
-      CLOUDSDK_CORE_PROJECT = var.project_id
-    }
-    command = <<-EOT
-      gcloud storage cp -q <(echo " ") gs://${var.bronze_bucket_name}/tb_external_sample/partition=dummy/.dummy || true
+    command = <<EOT
+      gcloud storage rm gs://${google_storage_bucket.bronze_bucket.name}/tb_external_sample/partition=dummy/.dummy_null_resource || true
     EOT
   }
 
-  # Remove o dummy após a tabela ser criada/alterada com sucesso
-  provisioner "local-exec" {
-    when        = create
-    interpreter = ["/bin/bash", "-c"]
-    environment = {
-      CLOUDSDK_CORE_PROJECT = var.project_id
-    }
-    command = "gcloud storage rm -q gs://${var.bronze_bucket_name}/tb_external_sample/partition=dummy/.dummy || true"
-  }
-
-  # Remove o dummy antes da tabela ser destruída (cleanup)
-  provisioner "local-exec" {
-    when        = destroy
-    interpreter = ["/bin/bash", "-c"]
-    environment = {
-      CLOUDSDK_CORE_PROJECT = self.project
-    }
-    command = "gcloud storage rm -q gs://${var.bronze_bucket_name}/tb_external_sample/partition=dummy/.dummy || true"
-  }
+  depends_on = [
+    null_resource.create_dummy_file,
+    google_bigquery_table.bronze_tb_external_sample_v4
+  ]
 }
