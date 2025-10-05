@@ -54,6 +54,6 @@ EOF
     environment = {
       CLOUDSDK_CORE_PROJECT = var.project_id
     }
-    command = "gcloud storage rm -q gs://${google_storage_bucket.bronze_bucket.name}/${google_storage_bucket_object.tb_external_sample_dummy_v3.name} || true"
+    command = "gcloud storage rm -q gs://${google_storage_bucket.bronze_bucket.name}/${google_storage_bucket_object.tb_external_sample_dummy_v3.name}"
   }
 }
