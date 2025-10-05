@@ -33,12 +33,17 @@ variable "description" {
 variable "time_partitioning" {
   description = "Configuração de particionamento por tempo"
   type = object({
-    type                     = string
-    field                    = optional(string)
-    expiration_ms            = optional(number)
-    require_partition_filter = optional(bool)
+    type          = string
+    field         = optional(string)
+    expiration_ms = optional(number)
   })
   default = null
+}
+
+variable "require_partition_filter" {
+  description = "Se definido como true, as consultas nesta tabela devem incluir um filtro de partição"
+  type        = bool
+  default     = null
 }
 
 variable "clustering" {
