@@ -1,8 +1,17 @@
 resource "google_storage_bucket_object" "tb_external_sample_dummy_v3" {
-  name    = "tb_external_sample/partition=dummy/.dummy"
+  name    = "tb_external_sample/partition=dummy/.dummy-${random_id.tb_external_sample_suffix.hex}"
   content = " "
   bucket  = google_storage_bucket.bronze_bucket.name
   
+}
+
+
+resource "random_id" "tb_external_sample_suffix" {
+  byte_length = 4
+  # Force a new value every apply so the object name is unique across runs
+  keepers = {
+    stamp = timestamp()
+  }
 }
 
 
@@ -54,6 +63,6 @@ EOF
     environment = {
       CLOUDSDK_CORE_PROJECT = var.project_id
     }
-    command = "gcloud storage rm -q gs://${google_storage_bucket.bronze_bucket.name}/${google_storage_bucket_object.tb_external_sample_dummy_v3.name}"
+    command = "gcloud storage rm -q gs://${google_storage_bucket.bronze_bucket.name}/${google_storage_bucket_object.tb_external_sample_dummy_v3.name} || true"
   }
 }
