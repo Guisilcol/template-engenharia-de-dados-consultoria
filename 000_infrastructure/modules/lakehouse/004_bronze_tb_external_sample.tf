@@ -63,7 +63,7 @@ EOF
       CLOUDSDK_CORE_PROJECT = var.project_id
     }
     command = <<-EOT
-      gcloud storage cp -q <(echo " ") gs://${google_storage_bucket.bronze_bucket.name}/tb_external_sample/partition=dummy/.dummy || true
+      gcloud storage cp -q <(echo " ") gs://${var.bronze_bucket_name}/tb_external_sample/partition=dummy/.dummy || true
     EOT
   }
 
@@ -74,7 +74,7 @@ EOF
     environment = {
       CLOUDSDK_CORE_PROJECT = var.project_id
     }
-    command = "gcloud storage rm -q gs://${google_storage_bucket.bronze_bucket.name}/tb_external_sample/partition=dummy/.dummy || true"
+    command = "gcloud storage rm -q gs://${var.bronze_bucket_name}/tb_external_sample/partition=dummy/.dummy || true"
   }
 
   # Remove o dummy antes da tabela ser destruída (cleanup)
