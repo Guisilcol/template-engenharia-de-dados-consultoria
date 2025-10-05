@@ -40,12 +40,6 @@ module "system_tb_parametro" {
       type        = "TIMESTAMP"
       mode        = "NULLABLE"
       description = "Last update timestamp"
-    },
-    {
-      name = "teste"
-      type = "STRING"
-      mode = "NULLABLE"
-      description = "Campo de teste"
     }
   ])
 }
