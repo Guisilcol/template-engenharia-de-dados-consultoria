@@ -8,7 +8,7 @@ requests==2.31.0
 pandas==2.1.4
 numpy==1.25.2
 pyarrow
-
+duckdb
 # Utility libraries
 python-dateutil==2.8.2
 pytz==2023.3
