@@ -1,8 +1,8 @@
 resource "google_storage_bucket_object" "tb_external_sample_dummy_v3" {
-  name    = "tb_external_sample/partition=dummy/dummy.parquet"
+  name    = "tb_external_sample/partition=dummy/.dummy"
   content = " "
   bucket  = google_storage_bucket.bronze_bucket.name
-
+  
 }
 
 
@@ -46,4 +46,14 @@ resource "google_bigquery_table" "bronze_tb_external_sample_v3" {
   }
 ]
 EOF
+
+  # Delete the temporary dummy object right after the table is created
+  provisioner "local-exec" {
+    # Ensure we use bash and the correct project context without mutating global gcloud config
+    interpreter = ["/bin/bash", "-c"]
+    environment = {
+      CLOUDSDK_CORE_PROJECT = var.project_id
+    }
+    command = "gcloud storage rm -q gs://${google_storage_bucket.bronze_bucket.name}/${google_storage_bucket_object.tb_external_sample_dummy_v3.name} || true"
+  }
 }
