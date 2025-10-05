@@ -1,3 +1,4 @@
+# Exemplo de Job usando apenas as variáveis de ambiente comuns
 module "cloud_run_job_sample_v3" {
   source = "./modules/cloud_run_job"
 
@@ -10,4 +11,13 @@ module "cloud_run_job_sample_v3" {
   cpu_limit             = "1"
   memory_limit          = "512Mi"
   max_retries           = 0
+  env_vars              = concat(
+    local.common_job_env_vars,
+    [
+      {
+        name  = "SAMPLE_VAR"
+        value = "sample_value"
+      }
+    ]
+  )
 }

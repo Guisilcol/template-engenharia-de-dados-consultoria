@@ -16,8 +16,8 @@ resource "google_cloud_run_v2_job" "default" {
         dynamic "env" {
           for_each = var.env_vars
           content {
-            name  = env.key
-            value = env.value
+            name  = env.value.name
+            value = env.value.value
           }
         }
 

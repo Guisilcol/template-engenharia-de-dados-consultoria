@@ -42,9 +42,12 @@ variable "memory_limit" {
 }
 
 variable "env_vars" {
-  description = "A map of environment variables to set in the container."
-  type        = map(string)
-  default     = {}
+  description = "A list of environment variables to set in the container."
+  type = list(object({
+    name  = string
+    value = string
+  }))
+  default     = []
 }
 
 variable "max_retries" {
