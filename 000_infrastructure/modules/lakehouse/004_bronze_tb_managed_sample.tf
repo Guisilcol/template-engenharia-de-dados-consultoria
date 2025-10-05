@@ -1,8 +1,12 @@
-resource "google_bigquery_table" "bronze_tb_managed_sample" {
-  project             = var.project_id
+# Módulo para criar tabela gerenciada de exemplo no dataset bronze
+module "bronze_tb_managed_sample" {
+  source = "./modules/managed_table"
+
+  project_id          = var.project_id
   dataset_id          = google_bigquery_dataset.bronze_dataset.dataset_id
-  deletion_protection = false
   table_id            = "tb_managed_sample"
+  deletion_protection = false
+  description         = "Tabela gerenciada de exemplo para testes"
 
   schema = jsonencode([
     {

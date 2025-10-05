@@ -1,8 +1,12 @@
-resource "google_bigquery_table" "system_tb_parametro" {
-  project             = var.project_id
+# Módulo para criar tabela de parâmetros do sistema
+module "system_tb_parametro" {
+  source = "./modules/managed_table"
+
+  project_id          = var.project_id
   dataset_id          = google_bigquery_dataset.system_dataset.dataset_id
-  deletion_protection = false
   table_id            = "tb_parametro"
+  deletion_protection = false
+  description         = "Tabela de parâmetros e configurações do sistema"
 
   schema = jsonencode([
     {
