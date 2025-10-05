@@ -6,7 +6,7 @@ from google.cloud import bigquery
 
 # Get environment variables
 project_id = os.environ.get("PROJECT_ID")
-table_id = "bronze_layer.tb_managed_sample_v2"
+table_id = "bronze_layer.tb_gerenciada_exemplo_v2"
 
 print(f"Project ID: {project_id}")
 print(f"Table ID: {table_id}")

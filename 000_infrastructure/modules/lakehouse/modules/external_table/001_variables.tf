@@ -19,7 +19,7 @@ variable "bucket_name" {
 }
 
 variable "table_prefix" {
-  description = "Prefixo do caminho da tabela no GCS (ex: tb_external_sample)"
+  description = "Prefixo do caminho da tabela no GCS (ex: tb_externa_exemplo)"
   type        = string
 }
 
