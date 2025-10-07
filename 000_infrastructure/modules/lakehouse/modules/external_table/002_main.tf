@@ -1,5 +1,10 @@
-# Null resource que sempre executa e cria um arquivo dummy no GCS
-# Isso garante que a tabela externa tenha pelo menos um arquivo para ser criada
+# Esse módulo foi criado usando null_resource por conta de uma limitação do GCP ao criar tabelas externas:
+# Para criar uma tabela externa, é necessário que exista pelo menos um arquivo no bucket/prefixo especificado.
+# Como o Terraform não tem como garantir que exista um arquivo no bucket/prefixo no momento da criação da tabela,
+# usamos um null_resource para criar um arquivo dummy antes de criar a tabela externa.
+# Após a criação da tabela, outro null_resource é usado para apagar o arquivo dummy.
+# Ele usa o utilitário gcloud, que deve estar instalado e autenticado na máquina onde o Terraform é executado.
+
 resource "null_resource" "create_dummy_file" {
   count = var.create_dummy_file ? 1 : 0
 
@@ -39,9 +44,6 @@ resource "google_bigquery_table" "external_table" {
   schema = var.schema
 }
 
-
-# Null resource que apaga o arquivo dummy criado anteriormente
-# Depende do null resource anterior e da tabela externa
 resource "null_resource" "delete_dummy_file" {
   count = var.create_dummy_file ? 1 : 0
 
