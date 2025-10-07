@@ -44,4 +44,18 @@ locals {
       value = var.region
     }
   ]
+
+  # Secrets comuns para todos os Cloud Run Jobs
+  common_job_secrets = [
+    {
+      name      = "HMAC_ACCESS_ID"
+      secret_id = module.hmac_access_id_secret.secret_ids["cloud-run-job-hmac-access-id"]
+      version   = "latest"
+    },
+    {
+      name      = "HMAC_SECRET_KEY"
+      secret_id = module.hmac_secret_key_secret.secret_ids["cloud-run-job-hmac-secret"]
+      version   = "latest"
+    }
+  ]
 }

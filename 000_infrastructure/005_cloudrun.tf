@@ -20,4 +20,5 @@ module "cloud_run_job_sample_v3" {
       }
     ]
   )
+  secrets               = local.common_job_secrets
 }
