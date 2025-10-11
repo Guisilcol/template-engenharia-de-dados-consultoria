@@ -5,7 +5,8 @@ resource "google_project_service" "required_apis" {
     "cloudbuild.googleapis.com",       # Cloud Build
     "artifactregistry.googleapis.com", # Artifact Registry
     "logging.googleapis.com",          # Cloud Logging
-    "monitoring.googleapis.com"        # Cloud Monitoring
+    "monitoring.googleapis.com",       # Cloud Monitoring
+    "secretmanager.googleapis.com"     # Secret Manager
   ])
 
   project = var.project_id
