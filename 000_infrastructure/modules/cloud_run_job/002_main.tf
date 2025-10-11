@@ -9,9 +9,9 @@ resource "google_cloud_run_v2_job" "default" {
       max_retries     = var.max_retries
       service_account = var.service_account_email
       containers {
-        image = var.artifact_image_path
+        image = var.cloud_run_jobs_artifact_image_path
         args  = var.args
-        
+
         # Environment variables regulares
         dynamic "env" {
           for_each = var.env_vars

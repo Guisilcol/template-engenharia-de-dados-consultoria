@@ -51,6 +51,7 @@ ENVIRONMENT=$2
 TMP_DIR=$(mktemp -d -t deploy-XXXXXX)
 INFRA_DIR="${TMP_DIR}/000_infrastructure"
 JOB_DIR="${TMP_DIR}/001_jobs"
+DASHBOARD_DIR="${TMP_DIR}/002_dashboards"
 BACKEND_CONFIG_FILE="${INFRA_DIR}/inventories/backend/${ENVIRONMENT}.conf"
 ENV_FILE="${INFRA_DIR}/inventories/env/${ENVIRONMENT}.env"
 TFVARS_FILE="${INFRA_DIR}/inventories/tfvars/${ENVIRONMENT}.tfvars"
@@ -90,6 +91,84 @@ if [ ! -f "${TFVARS_FILE}" ]; then
 fi
 echo "Arquivos do ambiente '${ENVIRONMENT}' verificados com sucesso."
 
+# ------------- Funções ------------- #
+# Função para fazer deploy de imagem Docker para o Artifact Registry
+# Parâmetros:
+#   $1: Diretório contendo o Dockerfile e código-fonte
+#   $2: PROJECT_ID do GCP
+#   $3: REGION do Artifact Registry
+#   $4: REPO_NAME do Artifact Registry
+#   $5: IMAGE_NAME da imagem Docker
+#   $6: IMAGE_TAG (opcional, padrão: latest)
+deploy_docker_image() {
+	local SOURCE_DIR=$1
+	local PROJECT_ID=$2
+	local REGION=$3
+	local REPO_NAME=$4
+	local IMAGE_NAME=$5
+	local IMAGE_TAG=${6:-latest}
+
+	echo ">>> Preparando build da imagem Docker..."
+
+	# Validações de parâmetros
+	if [ -z "${SOURCE_DIR}" ] || [ -z "${PROJECT_ID}" ] || [ -z "${REGION}" ] || [ -z "${REPO_NAME}" ] || [ -z "${IMAGE_NAME}" ]; then
+		echo "Erro: Parâmetros obrigatórios faltando para deploy_docker_image"
+		echo "Uso: deploy_docker_image <SOURCE_DIR> <PROJECT_ID> <REGION> <REPO_NAME> <IMAGE_NAME> [IMAGE_TAG]"
+		return 1
+	fi
+
+	echo "SOURCE_DIR: ${SOURCE_DIR}"
+	echo "PROJECT_ID: ${PROJECT_ID}"
+	echo "REGION: ${REGION}"
+	echo "REPO_NAME: ${REPO_NAME}"
+	echo "IMAGE_NAME: ${IMAGE_NAME}"
+	echo "IMAGE_TAG: ${IMAGE_TAG}"
+
+	# O usuário atual tem permissão para usar o Docker?
+	if ! docker info &>/dev/null; then
+		echo "Erro: não foi possível acessar o daemon do Docker."
+		echo "Dica: adicione seu usuário ao grupo 'docker' e reinicie a sessão: sudo usermod -aG docker $USER"
+		return 1
+	fi
+
+	# O usuário atual está autenticado no gcloud?
+	local ACTIVE_ACCOUNT=$(gcloud auth list --filter=status:ACTIVE --format="value(account)" || true)
+	if [ -z "${ACTIVE_ACCOUNT}" ]; then
+		echo "Erro: gcloud não está autenticado. Execute 'gcloud auth login' ou 'gcloud auth activate-service-account' e tente novamente."
+		return 1
+	fi
+
+	# O diretório de origem existe?
+	if [ ! -d "${SOURCE_DIR}" ]; then
+		echo "Erro: O diretório de origem '${SOURCE_DIR}' não foi encontrado."
+		return 1
+	fi
+
+	# Monta a URI da imagem
+	local IMAGE_URI="${REGION}-docker.pkg.dev/${PROJECT_ID}/${REPO_NAME}/${IMAGE_NAME}:${IMAGE_TAG}"
+
+	# Entra no diretório de origem
+	cd "${SOURCE_DIR}"
+	echo ">>> Entrando no diretório: $(pwd)"
+
+	# Configura autenticação Docker
+	echo ">>> Configurando autenticação Docker para o Artifact Registry (usando conta ${ACTIVE_ACCOUNT})..."
+	gcloud config set project "${PROJECT_ID}" 1>/dev/null
+	gcloud auth configure-docker "${REGION}-docker.pkg.dev" --quiet
+
+	# Build da imagem
+	echo ">>> Buildando a imagem Docker..."
+	docker build -t "${IMAGE_URI}" "."
+
+	# Push da imagem
+	echo ">>> Enviando a imagem para o Artifact Registry..."
+	docker push "${IMAGE_URI}"
+
+	echo ">>> Imagem enviada com sucesso para ${IMAGE_URI}"
+
+	return 0
+}
+
 # ------------- Carrega variáveis de ambiente ------------- #
 # Carrega as variáveis de ambiente do arquivo .env
 echo ">>> Carregando variáveis de ambiente de ${ENV_FILE}"
@@ -98,63 +177,34 @@ source "${ENV_FILE}"
 set +o allexport
 
 # ------------- Deploy da imagem ------------- #
-echo ">>> Preparando build da imagem Docker para ser usada no Cloud Run..."
-
 # Extrai informações das variaveis de ambientes carregadas para o build da imagem
-echo ">>> Extraindo PROJECT_ID, REGION, REPO_NAME e IMAGE_NAME das variáveis de ambiente..."
+echo ">>> Extraindo PROJECT_ID, REGION, REPO_NAME e IMAGE_NAME das variáveis de ambiente para deploy de imagem de JOBS..."
 PROJECT_ID=${TF_VAR_project_id}
 REGION=${TF_VAR_region}
 REPO_NAME=${TF_VAR_artifact_registry_name}
-IMAGE_NAME=${TF_VAR_artifact_image_name_to_cloud_run}
+IMAGE_NAME=${TF_VAR_artifact_image_name_to_cloud_run_jobs}
 
 if [ -z "${PROJECT_ID}" ] || [ -z "${REGION}" ] || [ -z "${REPO_NAME}" ] || [ -z "${IMAGE_NAME}" ]; then
-	echo "Erro: Não foi possível encontrar TF_VAR_project_id, TF_VAR_region, TF_VAR_artifact_registry_name e/ou TF_VAR_artifact_image_name_to_cloud_run nas variáveis de ambiente."
+	echo "Erro: Não foi possível encontrar TF_VAR_project_id, TF_VAR_region, TF_VAR_artifact_registry_name e/ou TF_VAR_artifact_image_name_to_cloud_run_jobs nas variáveis de ambiente."
 	exit 1
 fi
 
-echo "PROJECT_ID: ${PROJECT_ID}"
-echo "REGION: ${REGION}"
-echo "REPO_NAME: ${REPO_NAME}"
-echo "IMAGE_NAME: ${IMAGE_NAME}"
+# Chama a função de deploy da imagem Docker
+deploy_docker_image "${JOB_DIR}" "${PROJECT_ID}" "${REGION}" "${REPO_NAME}" "${IMAGE_NAME}" "latest"
 
-# O usuário atual tem permissão para usar o Docker?
-if ! docker info &>/dev/null; then
-	echo "Erro: não foi possível acessar o daemon do Docker."
-	echo "Dica: adicione seu usuário ao grupo 'docker' e reinicie a sessão: sudo usermod -aG docker $USER"
+echo ">>> Imagem Docker de JOBS implantada com sucesso."
+
+echo ">>> Extraindo IMAGE_NAME das variaveis de ambiente para deploy de imagem de Dashboards..."
+IMAGE_NAME=${TF_VAR_artifact_image_name_to_cloud_run_dashboards}
+if [ -z "${IMAGE_NAME}" ]; then
+	echo "Erro: Não foi possível encontrar TF_VAR_artifact_image_name_to_cloud_run_dashboards nas variáveis de ambiente."
 	exit 1
 fi
 
-# O usuário atual está autenticado no gcloud?
-ACTIVE_ACCOUNT=$(gcloud auth list --filter=status:ACTIVE --format="value(account)" || true)
-if [ -z "${ACTIVE_ACCOUNT}" ]; then
-	echo "Erro: gcloud não está autenticado. Execute 'gcloud auth login' ou 'gcloud auth activate-service-account' e tente novamente."
-	exit 1
-fi
+# Chama a função de deploy da imagem Docker
+deploy_docker_image "${DASHBOARD_DIR}" "${PROJECT_ID}" "${REGION}" "${REPO_NAME}" "${IMAGE_NAME}" "latest"
 
-# A pasta de jobs existe?
-if [ ! -d "${JOB_DIR}" ]; then
-	echo "Erro: O diretório de jobs '${JOB_DIR}' não foi encontrado no conteúdo da branch."
-	exit 1
-fi
-
-# Build e Push da imagem Docker
-IMAGE_TAG="latest" # Tag da imagem
-IMAGE_URI="${REGION}-docker.pkg.dev/${PROJECT_ID}/${REPO_NAME}/${IMAGE_NAME}:${IMAGE_TAG}"
-
-cd "${JOB_DIR}"
-echo ">>> Entrando no diretório: $(pwd)"
-
-echo ">>> Configurando autenticação Docker para o Artifact Registry (usando conta ${ACTIVE_ACCOUNT})..."
-gcloud config set project "${PROJECT_ID}" 1>/dev/null
-gcloud auth configure-docker "${REGION}-docker.pkg.dev" --quiet
-
-echo ">>> Buildando a imagem Docker..."
-docker build -t "${IMAGE_URI}" "."
-
-echo ">>> Enviando a imagem para o Artifact Registry..."
-docker push "${IMAGE_URI}"
-
-echo ">>> Imagem enviada com sucesso para ${IMAGE_URI}"
+echo ">>> Imagem Docker de Dashboards implantada com sucesso."
 
 # ------------- Deploy do Terraform ------------- #
 # A pasta de infraestrutura existe?

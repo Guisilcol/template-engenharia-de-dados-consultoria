@@ -18,7 +18,7 @@ variable "service_account_email" {
   type        = string
 }
 
-variable "artifact_image_path" {
+variable "cloud_run_jobs_artifact_image_path" {
   description = "The path to the container image in Artifact Registry."
   type        = string
 }
@@ -47,7 +47,7 @@ variable "env_vars" {
     name  = string
     value = string
   }))
-  default     = []
+  default = []
 }
 
 variable "max_retries" {
@@ -59,9 +59,9 @@ variable "max_retries" {
 variable "secrets" {
   description = "Lista de secrets a serem montados como variáveis de ambiente"
   type = list(object({
-    name       = string # Nome da variável de ambiente
-    secret_id  = string # ID do secret no Secret Manager (formato: projects/PROJECT_ID/secrets/SECRET_ID)
-    version    = optional(string, "latest") # Versão do secret (default: latest)
+    name      = string                     # Nome da variável de ambiente
+    secret_id = string                     # ID do secret no Secret Manager (formato: projects/PROJECT_ID/secrets/SECRET_ID)
+    version   = optional(string, "latest") # Versão do secret (default: latest)
   }))
   default = []
 }

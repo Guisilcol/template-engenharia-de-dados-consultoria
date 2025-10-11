@@ -1,5 +1,6 @@
 locals {
-  artifact_image_path = "${var.region}-docker.pkg.dev/${var.project_id}/${var.artifact_registry_name}/${var.artifact_image_name_to_cloud_run}"
+  cloud_run_jobs_artifact_image_path       = "${var.region}-docker.pkg.dev/${var.project_id}/${var.artifact_registry_name}/${var.artifact_image_name_to_cloud_run_jobs}"
+  cloud_run_dashboards_artifact_image_path = "${var.region}-docker.pkg.dev/${var.project_id}/${var.artifact_registry_name}/${var.artifact_image_name_to_cloud_run_dashboards}"
 
   # Variáveis de ambiente comuns para todos os Cloud Run Jobs
   common_job_env_vars = [

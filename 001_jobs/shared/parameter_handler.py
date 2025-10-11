@@ -1,8 +1,8 @@
 """
 Parameter Handler Module
 
-Este módulo gerencia parâmetros armazenados na tabela system.tb_parametro do BigQuery.
-Schema da tabela:
+Este módulo gerencia parâmetros armazenados na tabela system_layer.tb_parametro do BigQuery.
+Schema esperado da tabela:
 - uuid: STRING (gerado automaticamente)
 - codigo_parametro: STRING (chave única do parâmetro)
 - parametro: JSON (dados do parâmetro)
@@ -56,7 +56,7 @@ def get_or_create_parameter(
     table: "str" = "tb_parametro",
 ) -> "Dict[str, Any]":
     # Tenta buscar o parâmetro existente
-    
+
     try:
         existing_param = get_parameter(client, parameter_code, dataset_id, table)
         return existing_param

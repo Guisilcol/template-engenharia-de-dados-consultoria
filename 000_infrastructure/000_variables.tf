@@ -14,8 +14,13 @@ variable "artifact_registry_name" {
   type        = string
 }
 
-variable "artifact_image_name_to_cloud_run" {
+variable "artifact_image_name_to_cloud_run_jobs" {
   description = "O nome da imagem do Artifact Registry para Cloud Run Jobs"
+  type        = string
+}
+
+variable "artifact_image_name_to_cloud_run_dashboards" {
+  description = "O nome da imagem do Artifact Registry para Cloud Run Dashboards (Cloud Run Services)"
   type        = string
 }
 
