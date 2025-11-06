@@ -1,18 +1,3 @@
-
-module "some_secret" {
-  source = "./modules/secret_manager"
-
-  project_id = var.project_id
-  secrets = [
-    {
-      secret_id   = "my-secret"
-      description = "This is a secret created by Terraform"
-    }
-  ]
-
-  depends_on = [google_project_service.required_apis]
-}
-
 # Secret para armazenar o HMAC Access ID
 module "hmac_access_id_secret" {
   source = "./modules/secret_manager"
