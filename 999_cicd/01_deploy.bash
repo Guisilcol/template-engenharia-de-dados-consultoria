@@ -51,7 +51,6 @@ ENVIRONMENT=$2
 TMP_DIR=$(mktemp -d -t deploy-XXXXXX)
 INFRA_DIR="${TMP_DIR}/000_infrastructure"
 JOB_DIR="${TMP_DIR}/001_jobs"
-DASHBOARD_DIR="${TMP_DIR}/003_dashboards"
 BACKEND_CONFIG_FILE="${INFRA_DIR}/inventories/backend/${ENVIRONMENT}.conf"
 ENV_FILE="${INFRA_DIR}/inventories/env/${ENVIRONMENT}.env"
 TFVARS_FILE="${INFRA_DIR}/inventories/tfvars/${ENVIRONMENT}.tfvars"
@@ -193,18 +192,6 @@ fi
 deploy_docker_image "${JOB_DIR}" "${PROJECT_ID}" "${REGION}" "${REPO_NAME}" "${IMAGE_NAME}" "latest"
 
 echo ">>> Imagem Docker de JOBS implantada com sucesso."
-
-echo ">>> Extraindo IMAGE_NAME das variaveis de ambiente para deploy de imagem de Dashboards..."
-IMAGE_NAME=${TF_VAR_artifact_image_name_to_cloud_run_dashboards}
-if [ -z "${IMAGE_NAME}" ]; then
-	echo "Erro: Não foi possível encontrar TF_VAR_artifact_image_name_to_cloud_run_dashboards nas variáveis de ambiente."
-	exit 1
-fi
-
-# Chama a função de deploy da imagem Docker
-deploy_docker_image "${DASHBOARD_DIR}" "${PROJECT_ID}" "${REGION}" "${REPO_NAME}" "${IMAGE_NAME}" "latest"
-
-echo ">>> Imagem Docker de Dashboards implantada com sucesso."
 
 # ------------- Deploy do Terraform ------------- #
 # A pasta de infraestrutura existe?
