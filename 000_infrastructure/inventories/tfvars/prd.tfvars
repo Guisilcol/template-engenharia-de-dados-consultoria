@@ -6,3 +6,6 @@ reception_bucket_name = "bucket-reception-layer-"
 bronze_bucket_name    = "bucket-bronze-layer-"
 silver_bucket_name    = "bucket-silver-layer-"
 gold_bucket_name      = "bucket-gold-layer-"
+
+# Monitoring
+monitoring_alert_email = "seu-email@exemplo.com"

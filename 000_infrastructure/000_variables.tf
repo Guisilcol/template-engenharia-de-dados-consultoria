@@ -63,3 +63,12 @@ variable "gold_bucket_name" {
   description = "O nome do bucket da camada gold"
   type        = string
 }
+
+# =============================================================================
+# MONITORING
+# =============================================================================
+
+variable "monitoring_alert_email" {
+  description = "Endereço de e-mail para receber alertas de monitoramento de erros críticos"
+  type        = string
+}
